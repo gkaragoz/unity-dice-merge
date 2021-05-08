@@ -77,7 +77,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _minX: -80
   _maxX: 80
-  _minY: 0
+  _minY: 300
   _maxY: 365
   _inputMultiplier: 2
   _rb: {fileID: 2615869732193899142}
