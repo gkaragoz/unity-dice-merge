@@ -11,14 +11,15 @@ public class CubeShootManager : MonoBehaviour
 
     [Header("Other Settings")]
     [SerializeField] private float _inputMultiplier = 2f;
+    [SerializeField] private Rigidbody _rb;
 
     private Vector3 _mousePressDownPos;
     private Vector3 _forceVector;
 
     private bool _isShooting = false;
+    private bool _hasShootedOnce = false;
 
     private DrawTrajectory _drawTrajectory;
-    private CubeEntity _selectedCubeEntity;
 
     private void Start()
     {
@@ -27,14 +28,12 @@ public class CubeShootManager : MonoBehaviour
 
     private void Update()
     {
-        if (!CubeGenerateManager.instance.HasCube())
+        if (_hasShootedOnce)
             return;
 
         if (Input.GetMouseButtonDown(0))
         {
             _mousePressDownPos = Input.mousePosition;
-
-            _selectedCubeEntity = CubeGenerateManager.instance.GetGeneratedCube();
 
             _isShooting = true;
         }
@@ -57,7 +56,7 @@ public class CubeShootManager : MonoBehaviour
 
             if (_isShooting && _forceVector != Vector3.zero)
             {
-                _drawTrajectory.UpdateTrajectory(_forceVector, _selectedCubeEntity.Rb, _selectedCubeEntity.GetPosition());
+                _drawTrajectory.UpdateTrajectory(_forceVector, _rb, _rb.transform.position);
             }
         }
         else if (Input.GetMouseButtonUp(0))
@@ -69,14 +68,15 @@ public class CubeShootManager : MonoBehaviour
             _forceVector = Vector3.zero;
 
             _isShooting = false;
+            _hasShootedOnce = true;
         }
     }
 
     private void Shoot(Vector3 Force)
     {
-        _selectedCubeEntity.Rb.isKinematic = false;
-        _selectedCubeEntity.Rb.useGravity = true;
-        _selectedCubeEntity.Rb.AddForce(Force);
-        _selectedCubeEntity.Rb.AddTorque(new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)) * 30f);
+        _rb.isKinematic = false;
+        _rb.useGravity = true;
+        _rb.AddForce(Force);
+        _rb.AddTorque(new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)) * 30f);
     }
 }
