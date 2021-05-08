@@ -455,7 +455,7 @@ GameObject:
   - component: {fileID: 512969009}
   - component: {fileID: 512969010}
   m_Layer: 0
-  m_Name: GameManager
+  m_Name: RoundManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1118,7 +1118,7 @@ GameObject:
   - component: {fileID: 1119167629}
   m_Layer: 0
   m_Name: PlayerArea
-  m_TagString: Untagged
+  m_TagString: PlayArea
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1135,8 +1135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78dc77f19c2872a46a40371a7a5de8f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _type: 0
-  _cubeEntities: []
+  _owner: 0
 --- !u!65 &1119167630
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1228,7 +1227,7 @@ GameObject:
   - component: {fileID: 1166007639}
   m_Layer: 0
   m_Name: EnemyArea
-  m_TagString: Untagged
+  m_TagString: PlayArea
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1321,8 +1320,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78dc77f19c2872a46a40371a7a5de8f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _type: 1
-  _cubeEntities: []
+  _owner: 1
 --- !u!1 &1295670512
 GameObject:
   m_ObjectHideFlags: 0
@@ -1780,7 +1778,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _cubePrefab: {fileID: 1776247766846790825, guid: 9e35c6ca613726d4ab746beab7b58e33, type: 3}
-  _playerCubeLayer: PlayerCube
-  _enemyCubeLayer: EnemyCube
   _playerStartTransform: {fileID: 762695984}
   _enemyStartTransform: {fileID: 1295670513}

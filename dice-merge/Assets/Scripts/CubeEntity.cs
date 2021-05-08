@@ -1,6 +1,10 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
+using static PlayArea;
+using static RoundManager;
 
+[RequireComponent(typeof(CubeShootManager))]
 public class CubeEntity : MonoBehaviour
 {
     [SerializeField]
@@ -13,14 +17,39 @@ public class CubeEntity : MonoBehaviour
     private BoxCollider _collider;
 
     public int Number { get => _number; }
-    public Rigidbody Rb { get => _rb; }
 
     private CubeEntityGraphic _selectedGraphic;
     private Vector3 _yOffset;
     private string _layer;
+    private CubeShootManager _cubeShootManager;
+    private Owner _owner;
+    private Owner _placedAreaOwner;
 
     public event UnityAction<CubeEntity> DestroyAction;
     public string Layer { get => _layer; }
+    public bool HasPlacedInArea { get; private set; }
+    public Owner Owner { get => _owner; }
+    public Owner PlacedAreaOwner { get => _placedAreaOwner; }
+
+    public event UnityAction<CubeEntity> ShootAction;
+    public event UnityAction<CubeEntity> PlacedInAreaAction;
+
+    private void Awake()
+    {
+        _cubeShootManager = GetComponent<CubeShootManager>();
+
+        _cubeShootManager.ShootAction += OnShooted;
+    }
+
+    private void OnDestroy()
+    {
+        _cubeShootManager.ShootAction -= OnShooted;
+    }
+
+    private void OnShooted()
+    {
+        ShootAction?.Invoke(this);
+    }
 
     private void CloseAllGraphics()
     {
@@ -71,10 +100,39 @@ public class CubeEntity : MonoBehaviour
         _layer = layerName;
 
         gameObject.layer = LayerMask.NameToLayer(layerName);
+
+        if (_layer == Strings.PLAYER_CUBE_LAYER)
+            _owner = Owner.Player;
+        else if (_layer == Strings.ENEMY_CUBE_LAYER)
+            _owner = Owner.Enemy;
     }
 
     public void Destroy()
     {
         DestroyAction?.Invoke(this);
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag(Strings.PLAY_AREA))
+        {
+            PlayArea playArea = other.GetComponent<PlayArea>();
+            if (playArea.Owner == Owner.Player)
+            {
+                if (Layer == Strings.PLAYER_CUBE_LAYER)
+                    return;
+            }
+            else if (playArea.Owner == Owner.Enemy)
+            {
+                if (Layer == Strings.ENEMY_CUBE_LAYER)
+                    return;
+            }
+
+            HasPlacedInArea = true;
+            _placedAreaOwner = playArea.Owner;
+
+            PlacedInAreaAction?.Invoke(this);
+        }
+    }
+
 }

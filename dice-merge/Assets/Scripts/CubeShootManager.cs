@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 [RequireComponent(typeof(DrawTrajectory))]
 public class CubeShootManager : MonoBehaviour
@@ -20,6 +21,8 @@ public class CubeShootManager : MonoBehaviour
     private bool _hasShootedOnce = false;
 
     private DrawTrajectory _drawTrajectory;
+
+    public event UnityAction ShootAction;
 
     private void Start()
     {
@@ -69,6 +72,8 @@ public class CubeShootManager : MonoBehaviour
 
             _isShooting = false;
             _hasShootedOnce = true;
+
+            ShootAction?.Invoke();
         }
     }
 
