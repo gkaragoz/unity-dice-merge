@@ -6,10 +6,6 @@ public class CubeGenerateManager : MonoBehaviour
 
     [SerializeField]
     private CubeEntity _cubePrefab;
-    [SerializeField]
-    private string _playerCubeLayer;
-    [SerializeField]
-    private string _enemyCubeLayer;
 
     [SerializeField]
     private Transform _playerStartTransform;
@@ -34,7 +30,7 @@ public class CubeGenerateManager : MonoBehaviour
     {
         _generatedCube = Instantiate(_cubePrefab, transform);
         _generatedCube.SetNumber(Random.Range(1, 5));
-        _generatedCube.SetLayer(_playerCubeLayer);
+        _generatedCube.SetLayer(Strings.PLAYER_CUBE_LAYER);
 
         _generatedCube.SetPosition(_playerStartTransform.position);
 

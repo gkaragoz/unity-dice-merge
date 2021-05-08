@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class CubeEntity : MonoBehaviour
 {
@@ -16,6 +17,10 @@ public class CubeEntity : MonoBehaviour
 
     private CubeEntityGraphic _selectedGraphic;
     private Vector3 _yOffset;
+    private string _layer;
+
+    public event UnityAction<CubeEntity> DestroyAction;
+    public string Layer { get => _layer; }
 
     private void CloseAllGraphics()
     {
@@ -63,6 +68,13 @@ public class CubeEntity : MonoBehaviour
 
     public void SetLayer(string layerName)
     {
+        _layer = layerName;
+
         gameObject.layer = LayerMask.NameToLayer(layerName);
+    }
+
+    public void Destroy()
+    {
+        DestroyAction?.Invoke(this);
     }
 }

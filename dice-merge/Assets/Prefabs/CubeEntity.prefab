@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 2615869732193899142}
   m_Layer: 0
   m_Name: CubeEntity
-  m_TagString: Untagged
+  m_TagString: Cube
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -95,7 +95,7 @@ MonoBehaviour:
   _trajectoryPrefab: {fileID: 5679716392881809097, guid: 6e79c78a67d03be48999a87e7b3e6d61, type: 3}
   _layerMask:
     serializedVersion: 2
-    m_Bits: 503
+    m_Bits: 502
 --- !u!65 &5189810754565460114
 BoxCollider:
   m_ObjectHideFlags: 0
