@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,20 +16,12 @@ public class RoundManager : MonoBehaviour
     private List<CubeEntity> _enemyCubeEntities = new List<CubeEntity>();
     private MergeContainer _activeMergeContainer = new MergeContainer();
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            CubeEntity generatedCube = CubeGenerateManager.instance.GenerateCube();
-            generatedCube.ShootAction += OnCubeEntityShooted;
-            generatedCube.EnterAreaAction += OnCubeEntityEnteredArea;
-            generatedCube.MergingAction += OnMergingAction;
+    [SerializeField]
+    private Transform[] _eglence;
 
-            if (generatedCube.Owner == Owner.Player)
-                _playerCubeEntities.Add(generatedCube);
-            else if (generatedCube.Owner == Owner.Enemy)
-                _enemyCubeEntities.Add(generatedCube);
-        }
+    private void Start()
+    {
+        GenerateCube();
     }
 
     private void OnMergingAction(CubeEntity mergingCube)
@@ -73,6 +66,24 @@ public class RoundManager : MonoBehaviour
         Debug.LogWarning("Name:" + shootedCube.gameObject.name);
         Debug.LogWarning("Owner:" + shootedCube.Owner);
         Debug.LogWarning("Status:" + shootedCube.Status);
+
+        DOVirtual.DelayedCall(0.1f, () =>
+        {
+            GenerateCube();
+        });
+    }
+
+    private void GenerateCube()
+    {
+        CubeEntity generatedCube = CubeGenerateManager.instance.GenerateCube();
+        generatedCube.ShootAction += OnCubeEntityShooted;
+        generatedCube.EnterAreaAction += OnCubeEntityEnteredArea;
+        generatedCube.MergingAction += OnMergingAction;
+
+        if (generatedCube.Owner == Owner.Player)
+            _playerCubeEntities.Add(generatedCube);
+        else if (generatedCube.Owner == Owner.Enemy)
+            _enemyCubeEntities.Add(generatedCube);
     }
 
     private void OnDestroy()
