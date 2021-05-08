@@ -1,19 +1,54 @@
-using System;
 using UnityEngine;
 
 public class CubeEntity : MonoBehaviour
 {
     [SerializeField]
+    private int _number;
+    [SerializeField]
+    private CubeEntityGraphic[] _graphics;
+    [SerializeField]
     private Rigidbody _rb;
     [SerializeField]
-    private int _number;
+    private BoxCollider _collider;
 
     public int Number { get => _number; }
     public Rigidbody Rb { get => _rb; }
 
-    public void SetNumber(int number)
+    private CubeEntityGraphic _selectedGraphic;
+    private Vector3 _yOffset;
+
+    private void CloseAllGraphics()
     {
-        _number = number;
+        foreach (var item in _graphics)
+            item.Close();
+    }
+
+    private void SetCollider()
+    {
+        _collider.size = _selectedGraphic.Scale;
+    }
+
+    private void SetPositionBySelectedGraphic()
+    {
+        float scaleY = _selectedGraphic.Scale.y;
+
+        Vector3 pos = transform.position;
+        pos.y = scaleY / 2;
+
+        _yOffset = pos;
+    }
+
+    public void SetNumber(int power)
+    {
+        _number = (int)Mathf.Pow(2, power);
+
+        CloseAllGraphics();
+
+        _selectedGraphic = _graphics[power - 1];
+        _selectedGraphic.Open();
+
+        SetCollider();
+        SetPositionBySelectedGraphic();
     }
 
     public Vector3 GetPosition()
@@ -23,7 +58,7 @@ public class CubeEntity : MonoBehaviour
 
     public void SetPosition(Vector3 position)
     {
-        transform.position = position;
+        transform.position = position + _yOffset;
     }
 
     public void SetLayer(string layerName)
