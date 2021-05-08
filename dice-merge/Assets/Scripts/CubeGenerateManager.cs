@@ -29,9 +29,10 @@ public class CubeGenerateManager : MonoBehaviour
     public CubeEntity GenerateCube()
     {
         _generatedCube = Instantiate(_cubePrefab, transform);
-        _generatedCube.SetNumber(Random.Range(1, 5));
+        //_generatedCube.SetNumber(Random.Range(1, 5));
+        _generatedCube.SetNumber(3);
+        _generatedCube.SetGraphic();
         _generatedCube.SetLayer(Strings.PLAYER_CUBE_LAYER);
-
         _generatedCube.SetPosition(_playerStartTransform.position);
 
         return _generatedCube;

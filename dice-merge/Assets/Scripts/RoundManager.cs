@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,6 +13,7 @@ public class RoundManager : MonoBehaviour
 
     private List<CubeEntity> _playerCubeEntities = new List<CubeEntity>();
     private List<CubeEntity> _enemyCubeEntities = new List<CubeEntity>();
+    private MergeContainer _activeMergeContainer = new MergeContainer();
 
     void Update()
     {
@@ -19,12 +21,27 @@ public class RoundManager : MonoBehaviour
         {
             CubeEntity generatedCube = CubeGenerateManager.instance.GenerateCube();
             generatedCube.ShootAction += OnCubeEntityShooted;
-            generatedCube.PlacedInAreaAction += OnCubeEntityPlacedInArea;
+            generatedCube.EnterAreaAction += OnCubeEntityEnteredArea;
+            generatedCube.MergingAction += OnMergingAction;
 
             if (generatedCube.Owner == Owner.Player)
                 _playerCubeEntities.Add(generatedCube);
             else if (generatedCube.Owner == Owner.Enemy)
                 _enemyCubeEntities.Add(generatedCube);
+        }
+    }
+
+    private void OnMergingAction(CubeEntity mergingCube)
+    {
+        if (_activeMergeContainer.HasRoom())
+        {
+            _activeMergeContainer.AddEntity(mergingCube);
+            return;
+        }
+        else
+        {
+            _activeMergeContainer = new MergeContainer();
+            _activeMergeContainer.AddEntity(mergingCube);
         }
     }
 
@@ -40,12 +57,13 @@ public class RoundManager : MonoBehaviour
         return totalAmount;
     }
 
-    private void OnCubeEntityPlacedInArea(CubeEntity placedCube)
+    private void OnCubeEntityEnteredArea(CubeEntity placedCube)
     {
-        Debug.LogWarning("OnCubeEntityPlacedInArea: ");
+        Debug.LogWarning("OnCubeEntityEnteredArea: ");
         Debug.LogWarning("Name:" + placedCube.gameObject.name);
         Debug.LogWarning("Owner:" + placedCube.Owner);
         Debug.LogWarning("Placed Owner:" + placedCube.PlacedAreaOwner);
+        Debug.LogWarning("Status:" + placedCube.Status);
         Debug.LogWarning("Total number at area: " + GetTotalNumberInArea(placedCube.PlacedAreaOwner));
     }
 
@@ -54,7 +72,7 @@ public class RoundManager : MonoBehaviour
         Debug.LogWarning("OnCubeEntityShooted: ");
         Debug.LogWarning("Name:" + shootedCube.gameObject.name);
         Debug.LogWarning("Owner:" + shootedCube.Owner);
-        Debug.LogWarning("HasPlacedInArea:" + shootedCube.HasPlacedInArea);
+        Debug.LogWarning("Status:" + shootedCube.Status);
     }
 
     private void OnDestroy()
@@ -62,7 +80,8 @@ public class RoundManager : MonoBehaviour
         foreach (var item in _playerCubeEntities)
         {
             item.ShootAction -= OnCubeEntityShooted;
-            item.PlacedInAreaAction -= OnCubeEntityPlacedInArea;
+            item.EnterAreaAction -= OnCubeEntityEnteredArea;
+            item.MergingAction -= OnMergingAction;
         }
     }
 }
