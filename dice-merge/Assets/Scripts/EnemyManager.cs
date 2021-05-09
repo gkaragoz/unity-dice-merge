@@ -6,6 +6,7 @@ public class EnemyManager : MonoBehaviour
 {
     public static EnemyManager instance;
 
+    [Header("References")]
     [SerializeField]
     private CubeEntity _cubePrefab;
     [SerializeField]
@@ -13,11 +14,21 @@ public class EnemyManager : MonoBehaviour
     [SerializeField]
     private Transform _spawnTransform02;
 
+    [Header("Shoot Settings")]
+    [SerializeField]
+    private Difficulty _difficulty = Difficulty.Normal;
+
     private List<CubeEntity> _enemyCubeEntities = new List<CubeEntity>();
     private MergeContainer _activeMergeContainer = new MergeContainer();
 
     private Utils _utils = new Utils();
     private CubeGenerateManager _cubeGenerateManager = new CubeGenerateManager();
+
+    private CubeEntity _generatedCube01;
+    private CubeEntity _generatedCube02;
+
+    private float _shootRate = 1f;
+    private float _nextShootTime;
 
     private void Awake()
     {
@@ -33,16 +44,62 @@ public class EnemyManager : MonoBehaviour
 
     private void Start()
     {
+        SetDifficultyVariables();
+
         GenerateCube(1, _spawnTransform01.position);
         GenerateCube(1, _spawnTransform02.position);
     }
 
+    private void Update()
+    {
+        if (Time.time > _nextShootTime && IsReadyToShoot())
+        {
+            _nextShootTime = Time.time + _shootRate;
+
+            Shoot();
+        }
+    }
+
+    private bool IsReadyToShoot()
+    {
+        return _generatedCube01 != null && _generatedCube02 != null;
+    }
+
+    private void SetDifficultyVariables()
+    {
+        switch (_difficulty)
+        {
+            case Difficulty.Noob:
+                _shootRate = 5f;
+                break;
+            case Difficulty.Normal:
+                _shootRate = 3f;
+                break;
+            case Difficulty.Pro:
+                _shootRate = 1f;
+                break;
+        }
+    }
+
+    private void Shoot()
+    {
+        CubeEntity selectedCube = null;
+
+        //int selectedRandomCube = Random.Range(0, 2);
+        int selectedRandomCube = 0;
+        if (selectedRandomCube == 0)
+            selectedCube = _generatedCube01;
+        else if (selectedRandomCube == 1)
+            selectedCube = _generatedCube02;
+
+        selectedCube.ShootManager.ShootByManual(true, true);
+
+        _generatedCube01 = null;
+        _generatedCube02 = null;
+    }
+
     private void OnMergingAction(CubeEntity mergingCube)
     {
-        //Debug.LogWarning("Merging cube: ");
-        //Debug.LogWarning("Name:" + mergingCube.gameObject.name);
-        //Debug.LogWarning("Status:" + mergingCube.Status);
-
         if (_activeMergeContainer.HasRoom())
         {
             _activeMergeContainer.AddEntity(mergingCube);
@@ -59,13 +116,6 @@ public class EnemyManager : MonoBehaviour
     {
         if (placedCube.Owner == Owner.Enemy)
             _enemyCubeEntities.Add(placedCube);
-
-        //Debug.LogWarning("OnCubeEntityEnteredArea: ");
-        //Debug.LogWarning("Name:" + placedCube.gameObject.name);
-        //Debug.LogWarning("Owner:" + placedCube.Owner);
-        //Debug.LogWarning("Placed Owner:" + placedCube.PlacedAreaOwner);
-        //Debug.LogWarning("Status:" + placedCube.Status);
-        //Debug.LogWarning("Total number at area: " + GetTotalNumberInArea(placedCube.PlacedAreaOwner));
 
         int maxNumberInArea = _utils.GetMaxNumberInArea(_enemyCubeEntities);
         int[] randomPowers = _utils.GenerateRandomPowers(maxNumberInArea);
@@ -97,10 +147,6 @@ public class EnemyManager : MonoBehaviour
     {
         if (destroyedCube.Owner == Owner.Enemy && _enemyCubeEntities.Contains(destroyedCube))
             _enemyCubeEntities.Remove(destroyedCube);
-
-        //Debug.LogWarning("OnCubeDestroyed:");
-        //Debug.LogWarning("Name:" + destroyedCube.gameObject.name);
-        //Debug.LogWarning("Owner:" + destroyedCube.Owner);
     }
 
     private void GenerateCube(int power, Vector3 spawnPosition)
@@ -111,6 +157,11 @@ public class EnemyManager : MonoBehaviour
         generatedCube.StartMergingAction += OnMergingAction;
         generatedCube.MergingActionFinished += OnMergingActionFinished;
         generatedCube.DestroyAction += OnCubeDestroyed;
+
+        if (_generatedCube01 == null)
+            _generatedCube01 = generatedCube;
+        else if (_generatedCube02 == null)
+            _generatedCube02 = generatedCube;
     }
 
     private void OnDestroy()

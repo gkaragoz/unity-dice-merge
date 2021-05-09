@@ -50,6 +50,7 @@ public class CubeEntity : MonoBehaviour
     public bool HasSelected { get => _hasSelected; }
     public bool HasEnteredBefore { get => _hasEnteredBefore; }
     public bool IsLeftOne { get => _isLeftOne; }
+    public CubeShootManager ShootManager { get => _cubeShootManager; }
 
     public event UnityAction<CubeEntity> ShootAction;
     public event UnityAction<CubeEntity> StartMergingAction;
@@ -207,6 +208,8 @@ public class CubeEntity : MonoBehaviour
             _owner = Owner.Player;
         else if (_layer == Strings.ENEMY_CUBE_LAYER)
             _owner = Owner.Enemy;
+
+        SetName();
     }
 
     public void Destroy()

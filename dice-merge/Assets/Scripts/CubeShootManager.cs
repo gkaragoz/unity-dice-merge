@@ -113,11 +113,67 @@ public class CubeShootManager : MonoBehaviour
         }
     }
 
-    private void Shoot(Vector3 Force)
+    public void Shoot(Vector3 Force)
     {
         _rb.isKinematic = false;
         _rb.useGravity = true;
         _rb.AddForce(Force);
         _rb.AddTorque(new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)) * 30f);
+    }
+
+    private Vector3 GetRandomInput(bool isReversedDirection)
+    {
+        Vector2 input = Vector2.zero;
+
+        input.x = Random.Range(_minX, _maxX);
+        input.y = Random.Range(_minY, _maxY);
+
+        input.x = Mathf.Clamp(input.x, _minX, _maxX);
+        input.y = Mathf.Clamp(input.y, _minY, _maxY);
+
+        Vector3 randomInput = new Vector3(input.x, input.y, input.y) * _inputMultiplier;
+
+        if (isReversedDirection)
+            randomInput.z *= -1;
+
+        return randomInput;
+    }
+
+    private Vector3 GetStraightInput(bool isReversedDirection)
+    {
+        Vector2 input = Vector2.zero;
+
+        input.x = _maxX / 2;
+        input.y = _maxY / 2;
+
+        input.x = Mathf.Clamp(input.x, _minX, _maxX);
+        input.y = Mathf.Clamp(input.y, _minY, _maxY);
+
+        Vector3 finalInput = new Vector3(input.x, input.y, input.y) * _inputMultiplier;
+
+        if (isReversedDirection)
+            finalInput.z *= -1;
+
+        return finalInput;
+    }
+
+    public void ShootByManual(bool isReversedDirection, bool debugStraightInput = false)
+    {
+        if (_hasShootedOnce)
+            return;
+
+        if (debugStraightInput)
+            _forceVector = GetStraightInput(isReversedDirection);
+        else
+            _forceVector = GetRandomInput(isReversedDirection);
+
+        _rb.isKinematic = false;
+        _rb.useGravity = true;
+        _rb.AddForce(_forceVector);
+        _rb.AddTorque(new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)) * 30f);
+
+        _hasShootedOnce = true;
+
+        ShootAction?.Invoke();
     }
 }
