@@ -56,9 +56,9 @@ public class RoundManager : MonoBehaviour
 
     private void OnMergingAction(CubeEntity mergingCube)
     {
-        Debug.LogWarning("Merging cube: ");
-        Debug.LogWarning("Name:" + mergingCube.gameObject.name);
-        Debug.LogWarning("Status:" + mergingCube.Status);
+        //Debug.LogWarning("Merging cube: ");
+        //Debug.LogWarning("Name:" + mergingCube.gameObject.name);
+        //Debug.LogWarning("Status:" + mergingCube.Status);
 
         if (_activeMergeContainer.HasRoom())
         {
@@ -94,12 +94,32 @@ public class RoundManager : MonoBehaviour
         return -1;
     }
 
+    private int GetPowerCountOfNumber(int number)
+    {
+        int count = 0;
+        int calculatedNumber = number;
+        while (calculatedNumber != 0)
+        {
+            calculatedNumber /= 2;
+
+            if (calculatedNumber == 0)
+                break;
+
+            count++;
+        }
+
+        return count;
+    }
+
     private int[] GenerateRandomPowers(int maxNumberInArea)
     {
         if (maxNumberInArea == 2)
             return new int[] { 1, 1 };
 
-        int maxPowerInRandom = (int)Mathf.Sqrt(maxNumberInArea) + 1;
+        if (maxNumberInArea >= 16)
+            maxNumberInArea = 8;
+
+        int maxPowerInRandom = GetPowerCountOfNumber(maxNumberInArea) + 1;
         int firstPower = UnityEngine.Random.Range(1, maxPowerInRandom);
         int secondPower = UnityEngine.Random.Range(1, maxPowerInRandom);
 
