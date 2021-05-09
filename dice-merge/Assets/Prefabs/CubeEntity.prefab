@@ -115,7 +115,7 @@ MonoBehaviour:
   _trajectoryPrefab: {fileID: 5679716392881809097, guid: 6e79c78a67d03be48999a87e7b3e6d61, type: 3}
   _layerMask:
     serializedVersion: 2
-    m_Bits: 502
+    m_Bits: 438
 --- !u!65 &5189810754565460114
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -245,7 +245,7 @@ public class CubeEntity : MonoBehaviour
         if (otherEntity == null)
             return;
 
-        if (Owner != otherEntity.Owner)
+        if (Owner != otherEntity.Owner && otherEntity.Status == StatusType.Flying)
         {
             CollideWithEnemyCubeAction?.Invoke(this, otherEntity);
             Destroy();
