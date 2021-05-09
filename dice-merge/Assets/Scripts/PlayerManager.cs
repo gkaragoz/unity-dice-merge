@@ -1,25 +1,26 @@
 using DG.Tweening;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class RoundManager : MonoBehaviour
+public class PlayerManager : MonoBehaviour
 {
-    public static RoundManager instance;
+    public static PlayerManager instance;
 
-    public enum Owner
-    {
-        Player,
-        Enemy
-    }
-
-    private List<CubeEntity> _playerCubeEntities = new List<CubeEntity>();
-    private List<CubeEntity> _enemyCubeEntities = new List<CubeEntity>();
-    private MergeContainer _activeMergeContainer = new MergeContainer();
+    [SerializeField]
+    private CubeEntity _cubePrefab;
+    [SerializeField]
+    private Transform _spawnTransform01;
+    [SerializeField]
+    private Transform _spawnTransform02;
 
     public event UnityAction<CubeEntity> CubeSelection;
+
+    private List<CubeEntity> _playerCubeEntities = new List<CubeEntity>();
+    private MergeContainer _activeMergeContainer = new MergeContainer();
+
+    private Utils _utils = new Utils();
+    private CubeGenerateManager _cubeGenerateManager = new CubeGenerateManager();
 
     private void Awake()
     {
@@ -35,8 +36,8 @@ public class RoundManager : MonoBehaviour
 
     private void Start()
     {
-        GenerateCube(1);
-        GenerateCube(1);
+        GenerateCube(1, _spawnTransform01.position);
+        GenerateCube(1, _spawnTransform02.position);
     }
 
     private void Update()
@@ -72,69 +73,10 @@ public class RoundManager : MonoBehaviour
         }
     }
 
-    private int GetTotalNumberInArea(Owner areaOwner)
-    {
-        int totalAmount = 0;
-
-        if (areaOwner == Owner.Player)
-            totalAmount = _enemyCubeEntities.Sum(a => a.Number);
-        else if (areaOwner == Owner.Enemy)
-            totalAmount = _playerCubeEntities.Sum(a => a.Number);
-
-        return totalAmount;
-    }
-
-    private int GetMaxNumberInArea(Owner areaOwner)
-    {
-        if (areaOwner == Owner.Player)
-            return _enemyCubeEntities.Max(a => a.Number);
-        else if (areaOwner == Owner.Enemy)
-            return _playerCubeEntities.Max(a => a.Number);
-
-        return -1;
-    }
-
-    private int GetPowerCountOfNumber(int number)
-    {
-        int count = 0;
-        int calculatedNumber = number;
-        while (calculatedNumber != 0)
-        {
-            calculatedNumber /= 2;
-
-            if (calculatedNumber == 0)
-                break;
-
-            count++;
-        }
-
-        return count;
-    }
-
-    private int[] GenerateRandomPowers(int maxNumberInArea)
-    {
-        if (maxNumberInArea == 2)
-            return new int[] { 1, 1 };
-
-        if (maxNumberInArea >= 16)
-            maxNumberInArea = 8;
-
-        int maxPowerInRandom = GetPowerCountOfNumber(maxNumberInArea) + 1;
-        int firstPower = UnityEngine.Random.Range(1, maxPowerInRandom);
-        int secondPower = UnityEngine.Random.Range(1, maxPowerInRandom);
-
-        while (secondPower == firstPower)
-            secondPower = UnityEngine.Random.Range(1, maxPowerInRandom);
-
-        return new int[] { firstPower, secondPower };
-    }
-
     private void OnCubeEntityEnteredArea(CubeEntity placedCube)
     {
         if (placedCube.Owner == Owner.Player)
             _playerCubeEntities.Add(placedCube);
-        else if (placedCube.Owner == Owner.Enemy)
-            _enemyCubeEntities.Add(placedCube);
 
         //Debug.LogWarning("OnCubeEntityEnteredArea: ");
         //Debug.LogWarning("Name:" + placedCube.gameObject.name);
@@ -143,13 +85,13 @@ public class RoundManager : MonoBehaviour
         //Debug.LogWarning("Status:" + placedCube.Status);
         //Debug.LogWarning("Total number at area: " + GetTotalNumberInArea(placedCube.PlacedAreaOwner));
 
-        int maxNumberInArea = GetMaxNumberInArea(placedCube.PlacedAreaOwner);
-        int[] randomPowers = GenerateRandomPowers(maxNumberInArea);
+        int maxNumberInArea = _utils.GetMaxNumberInArea(_playerCubeEntities);
+        int[] randomPowers = _utils.GenerateRandomPowers(maxNumberInArea);
 
         DOVirtual.DelayedCall(0.3f, () =>
         {
-            GenerateCube(randomPowers[0]);
-            GenerateCube(randomPowers[1]);
+            GenerateCube(randomPowers[0], _spawnTransform01.position);
+            GenerateCube(randomPowers[1], _spawnTransform02.position);
         });
     }
 
@@ -163,29 +105,25 @@ public class RoundManager : MonoBehaviour
 
         if (mergedCube.Owner == Owner.Player)
             _playerCubeEntities.Remove(mergedCube);
-        else if (mergedCube.Owner == Owner.Enemy)
-            _enemyCubeEntities.Remove(mergedCube);
 
         mergedCube.Destroy();
 
-        Debug.LogWarning("Total number at area: " + GetTotalNumberInArea(liveCube.PlacedAreaOwner));
+        Debug.LogWarning("Total number at area: " + _utils.GetTotalNumberInArea(_playerCubeEntities));
     }
 
     private void OnCubeDestroyed(CubeEntity destroyedCube)
     {
         if (destroyedCube.Owner == Owner.Player && _playerCubeEntities.Contains(destroyedCube))
             _playerCubeEntities.Remove(destroyedCube);
-        else if (destroyedCube.Owner == Owner.Enemy && _enemyCubeEntities.Contains(destroyedCube))
-            _enemyCubeEntities.Remove(destroyedCube);
 
         //Debug.LogWarning("OnCubeDestroyed:");
         //Debug.LogWarning("Name:" + destroyedCube.gameObject.name);
         //Debug.LogWarning("Owner:" + destroyedCube.Owner);
     }
 
-    private void GenerateCube(int power)
+    private void GenerateCube(int power, Vector3 spawnPosition)
     {
-        CubeEntity generatedCube = CubeGenerateManager.instance.GenerateCube(power);
+        CubeEntity generatedCube = _cubeGenerateManager.GenerateCube(_cubePrefab, power, Owner.Player, spawnPosition);
         generatedCube.ShootAction += OnCubeEntityShooted;
         generatedCube.EnterAreaAction += OnCubeEntityEnteredArea;
         generatedCube.StartMergingAction += OnMergingAction;

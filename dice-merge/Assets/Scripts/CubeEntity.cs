@@ -1,7 +1,5 @@
-using System;
 using UnityEngine;
 using UnityEngine.Events;
-using static RoundManager;
 
 [RequireComponent(typeof(CubeShootManager), typeof(CubeMerge))]
 public class CubeEntity : MonoBehaviour
@@ -73,7 +71,7 @@ public class CubeEntity : MonoBehaviour
 
     private void Start()
     {
-        RoundManager.instance.CubeSelection += OnCubeSelection;
+        PlayerManager.instance.CubeSelection += OnCubeSelection;
     }
 
     private void OnCubeSelection(CubeEntity selectedCube)
@@ -95,7 +93,7 @@ public class CubeEntity : MonoBehaviour
         _cubeMerge.StartMergingAction -= OnStartMergingAction;
         _cubeMerge.MergingActionFinished -= OnMergingActionFinished;
 
-        RoundManager.instance.CubeSelection -= OnCubeSelection;
+        PlayerManager.instance.CubeSelection -= OnCubeSelection;
     }
 
     private void OnShooted()
@@ -104,7 +102,7 @@ public class CubeEntity : MonoBehaviour
 
         ShootAction?.Invoke(this);
 
-        RoundManager.instance.CubeSelection -= OnCubeSelection;
+        PlayerManager.instance.CubeSelection -= OnCubeSelection;
     }
 
     private void OnStartMergingAction()

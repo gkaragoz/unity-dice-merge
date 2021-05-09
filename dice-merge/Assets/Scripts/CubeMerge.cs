@@ -60,7 +60,7 @@ public class CubeMerge : MonoBehaviour
                             finalPosition.x = 0;
                             finalPosition.y = 4f;
 
-                            if (_entity.Owner == RoundManager.Owner.Player)
+                            if (_entity.Owner == Owner.Player)
                                 finalPosition.z = 4.5f;
                             else
                                 finalPosition.z = -6f;
