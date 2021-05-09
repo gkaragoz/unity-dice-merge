@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -20,6 +21,8 @@ public class CubeEntity : MonoBehaviour
     private Rigidbody _rb;
     [SerializeField]
     private BoxCollider _collider;
+    [SerializeField]
+    private BoxCollider _reversedCollider;
 
     [Header("Debug")]
     [SerializeField]
@@ -56,6 +59,7 @@ public class CubeEntity : MonoBehaviour
     public event UnityAction<CubeEntity> StartMergingAction;
     public event UnityAction<CubeEntity, CubeEntity> MergingActionFinished;
     public event UnityAction<CubeEntity> EnterAreaAction;
+    public event UnityAction<CubeEntity> EnterWrongAreaAction;
     public event UnityAction<CubeEntity> DestroyAction;
     public event UnityAction<CubeEntity, CubeEntity> CollideWithEnemyCubeAction;
 
@@ -69,6 +73,8 @@ public class CubeEntity : MonoBehaviour
         _cubeMerge.MergingActionFinished += OnMergingActionFinished;
 
         _status = StatusType.Idle;
+
+        DisableReversedCollider();
     }
 
     private void Start()
@@ -123,6 +129,7 @@ public class CubeEntity : MonoBehaviour
     private void SetCollider()
     {
         _collider.size = _selectedGraphic.Scale;
+        _reversedCollider.size = _selectedGraphic.Scale;
     }
 
     private void SetPositionBySelectedGraphic()
@@ -172,6 +179,11 @@ public class CubeEntity : MonoBehaviour
         _collider.enabled = true;
     }
 
+    public void EnableReversedCollider()
+    {
+        _reversedCollider.enabled = true;
+    }
+
     public void EnableRigidbody()
     {
         _rb.isKinematic = false;
@@ -181,6 +193,11 @@ public class CubeEntity : MonoBehaviour
     {
         _collider.enabled = false;
     }
+    public void DisableReversedCollider()
+    {
+        _reversedCollider.enabled = false;
+    }
+
 
     public void DisableRigidbody()
     {
@@ -237,9 +254,6 @@ public class CubeEntity : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (_hasEnteredBefore)
-            return;
-
         if (other.CompareTag(Strings.PLAY_AREA))
         {
             PlayArea playArea = other.GetComponent<PlayArea>();
@@ -254,13 +268,50 @@ public class CubeEntity : MonoBehaviour
                     return;
             }
 
+            if (_hasEnteredBefore)
+                return;
+
             _placedAreaOwner = playArea.Owner;
             _status = StatusType.InArea;
 
             _hasEnteredBefore = true;
 
+            DOVirtual.DelayedCall(0.2f, () =>
+            {
+                EnableReversedCollider();
+            });
+
             EnterAreaAction?.Invoke(this);
         }
+        else if (other.CompareTag(Strings.DESTROYER_AREA))
+        {
+            PlayArea destroyerArea = other.GetComponent<PlayArea>();
+            if (destroyerArea.Owner == Owner.Player)
+            {
+                if (Layer == Strings.PLAYER_CUBE_LAYER)
+                {
+                    if (_hasEnteredBefore)
+                    {
+                        EnterWrongAreaAction?.Invoke(this);
+                        Destroy();
+                    }
+                    return;
+                }
+            }
+            else if (destroyerArea.Owner == Owner.Enemy)
+            {
+                if (Layer == Strings.ENEMY_CUBE_LAYER)
+                {
+                    if (_hasEnteredBefore)
+                    {
+                        EnterWrongAreaAction?.Invoke(this);
+                        Destroy();
+                    }
+                    return;
+                }
+            }
+        }
     }
-
+    
+                    
 }

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Cube
   - PlayArea
+  - DestroyerArea
   layers:
   - Default
   - TransparentFX
@@ -17,8 +18,8 @@ TagManager:
   - PlayerCube
   - EnemyWall
   - PlayerWall
-  - 
-  - 
+  - ReversedCollider
+  - MiddleCollider
   - 
   - 
   - 

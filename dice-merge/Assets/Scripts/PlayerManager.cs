@@ -23,6 +23,9 @@ public class PlayerManager : MonoBehaviour
     private Utils _utils = new Utils();
     private CubeGenerateManager _cubeGenerateManager = new CubeGenerateManager();
 
+    private CubeEntity _generatedCube01;
+    private CubeEntity _generatedCube02;
+
     private void Awake()
     {
         if (instance == null)
@@ -74,23 +77,34 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    private void OnCubeEntityEnteredArea(CubeEntity placedCube)
+    private void OnCubeEntityEnteredArea(CubeEntity enteredCube)
     {
-        if (placedCube.Owner == Owner.Player)
-            _playerCubeEntities.Add(placedCube);
+        if (enteredCube.Owner == Owner.Player)
+            _playerCubeEntities.Add(enteredCube);
 
         //Debug.LogWarning("OnCubeEntityEnteredArea: ");
-        //Debug.LogWarning("Name:" + placedCube.gameObject.name);
-        //Debug.LogWarning("Owner:" + placedCube.Owner);
-        //Debug.LogWarning("Placed Owner:" + placedCube.PlacedAreaOwner);
-        //Debug.LogWarning("Status:" + placedCube.Status);
-        //Debug.LogWarning("Total number at area: " + GetTotalNumberInArea(placedCube.PlacedAreaOwner));
+        //Debug.LogWarning("Name:" + enteredCube.gameObject.name);
+        //Debug.LogWarning("Owner:" + enteredCube.Owner);
+        //Debug.LogWarning("Placed Owner:" + enteredCube.PlacedAreaOwner);
+        //Debug.LogWarning("Status:" + enteredCube.Status);
+        //Debug.LogWarning("Total number at area: " + _utils.GetTotalNumberInArea(_playerCubeEntities));
+
+        GenerateCubes();
+    }
+
+
+    private void OnCubeEntityEnterWrongAreaAction(CubeEntity enteredCube)
+    {
+        if (enteredCube.Owner == Owner.Player && _playerCubeEntities.Contains(enteredCube))
+            _playerCubeEntities.Remove(enteredCube);
 
         GenerateCubes();
     }
 
     private void OnCubeEntityShooted(CubeEntity shootedCube)
     {
+        _generatedCube01 = null;
+        _generatedCube02 = null;
     }
 
     private void OnMergingActionFinished(CubeEntity liveCube, CubeEntity mergedCube)
@@ -134,13 +148,22 @@ public class PlayerManager : MonoBehaviour
 
     private void GenerateCube(int power, Vector3 spawnPosition)
     {
+        if (_generatedCube01 != null && _generatedCube02 != null)
+            return;
+
         CubeEntity generatedCube = _cubeGenerateManager.GenerateCube(_cubePrefab, power, Owner.Player, spawnPosition);
         generatedCube.ShootAction += OnCubeEntityShooted;
         generatedCube.EnterAreaAction += OnCubeEntityEnteredArea;
+        generatedCube.EnterWrongAreaAction += OnCubeEntityEnterWrongAreaAction;
         generatedCube.StartMergingAction += OnMergingAction;
         generatedCube.MergingActionFinished += OnMergingActionFinished;
         generatedCube.DestroyAction += OnCubeDestroyed;
         generatedCube.CollideWithEnemyCubeAction += OnCollideWithEnemyCubeAction;
+
+        if (_generatedCube01 == null)
+            _generatedCube01 = generatedCube;
+        else if (_generatedCube02 == null)
+            _generatedCube02 = generatedCube;
     }
 
     private void OnDestroy()
@@ -149,6 +172,7 @@ public class PlayerManager : MonoBehaviour
         {
             item.ShootAction -= OnCubeEntityShooted;
             item.EnterAreaAction -= OnCubeEntityEnteredArea;
+            item.EnterWrongAreaAction -= OnCubeEntityEnterWrongAreaAction;
             item.StartMergingAction -= OnMergingAction;
             item.MergingActionFinished -= OnMergingActionFinished;
             item.DestroyAction -= OnCubeDestroyed;

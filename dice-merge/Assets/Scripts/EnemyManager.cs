@@ -131,6 +131,14 @@ public class EnemyManager : MonoBehaviour
         });
     }
 
+    private void OnCubeEntityEnterWrongAreaAction(CubeEntity enteredCube)
+    {
+        if (enteredCube.Owner == Owner.Enemy && _enemyCubeEntities.Contains(enteredCube))
+            _enemyCubeEntities.Remove(enteredCube);
+
+        GenerateCubes();
+    }
+
     private void OnCubeEntityShooted(CubeEntity shootedCube)
     {
     }
@@ -171,9 +179,13 @@ public class EnemyManager : MonoBehaviour
 
     private void GenerateCube(int power, Vector3 spawnPosition)
     {
+        if (_generatedCube01 != null && _generatedCube02 != null)
+            return;
+
         CubeEntity generatedCube = _cubeGenerateManager.GenerateCube(_cubePrefab, power, Owner.Enemy, spawnPosition);
         generatedCube.ShootAction += OnCubeEntityShooted;
         generatedCube.EnterAreaAction += OnCubeEntityEnteredArea;
+        generatedCube.EnterWrongAreaAction += OnCubeEntityEnterWrongAreaAction;
         generatedCube.StartMergingAction += OnMergingAction;
         generatedCube.MergingActionFinished += OnMergingActionFinished;
         generatedCube.DestroyAction += OnCubeDestroyed;
@@ -191,6 +203,7 @@ public class EnemyManager : MonoBehaviour
         {
             item.ShootAction -= OnCubeEntityShooted;
             item.EnterAreaAction -= OnCubeEntityEnteredArea;
+            item.EnterWrongAreaAction -= OnCubeEntityEnterWrongAreaAction;
             item.StartMergingAction -= OnMergingAction;
             item.MergingActionFinished -= OnMergingActionFinished;
             item.DestroyAction -= OnCubeDestroyed;

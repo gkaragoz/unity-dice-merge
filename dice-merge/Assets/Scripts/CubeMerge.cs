@@ -36,6 +36,9 @@ public class CubeMerge : MonoBehaviour
         _entity.DisableRigidbody();
         targetEntity.DisableRigidbody();
 
+        _entity.DisableReversedCollider();
+        targetEntity.DisableReversedCollider();
+
         Vector3 midPoint = (_entity.GetPosition() + targetEntity.GetPosition()) * 0.5f;
         _entity.transform.DOMove(midPoint, 0.25f).SetEase(Ease.InOutQuad);
         _entity.transform.DOScale(0f, 0.25f).SetEase(Ease.InOutQuad);
@@ -53,6 +56,7 @@ public class CubeMerge : MonoBehaviour
                         {
                             _entity.EnableCollider();
                             _entity.EnableRigidbody();
+                            _entity.EnableReversedCollider();
                         }
                         else
                         {
