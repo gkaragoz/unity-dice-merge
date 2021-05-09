@@ -1,11 +1,13 @@
 using DG.Tweening;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class RoundManager : MonoBehaviour
 {
+    public static RoundManager instance;
+
     public enum Owner
     {
         Player,
@@ -16,12 +18,39 @@ public class RoundManager : MonoBehaviour
     private List<CubeEntity> _enemyCubeEntities = new List<CubeEntity>();
     private MergeContainer _activeMergeContainer = new MergeContainer();
 
-    [SerializeField]
-    private Transform[] _eglence;
+    public event UnityAction<CubeEntity> CubeSelection;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
 
     private void Start()
     {
-        GenerateCube();
+        GenerateCube(1);
+        GenerateCube(2);
+    }
+
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hit, 100.0f))
+            {
+                CubeEntity selectedCube = hit.transform.GetComponent<CubeEntity>();
+                if (selectedCube != null)
+                    CubeSelection?.Invoke(selectedCube);
+            }
+        }
     }
 
     private void OnMergingAction(CubeEntity mergingCube)
@@ -67,15 +96,16 @@ public class RoundManager : MonoBehaviour
         Debug.LogWarning("Owner:" + shootedCube.Owner);
         Debug.LogWarning("Status:" + shootedCube.Status);
 
-        DOVirtual.DelayedCall(0.1f, () =>
+        DOVirtual.DelayedCall(0.3f, () =>
         {
-            GenerateCube();
+            GenerateCube(1);
+            GenerateCube(2);
         });
     }
 
-    private void GenerateCube()
+    private void GenerateCube(int power)
     {
-        CubeEntity generatedCube = CubeGenerateManager.instance.GenerateCube();
+        CubeEntity generatedCube = CubeGenerateManager.instance.GenerateCube(power);
         generatedCube.ShootAction += OnCubeEntityShooted;
         generatedCube.EnterAreaAction += OnCubeEntityEnteredArea;
         generatedCube.MergingAction += OnMergingAction;

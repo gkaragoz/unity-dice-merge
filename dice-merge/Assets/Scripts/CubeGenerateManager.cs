@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class CubeGenerateManager : MonoBehaviour
@@ -8,11 +9,14 @@ public class CubeGenerateManager : MonoBehaviour
     private CubeEntity _cubePrefab;
 
     [SerializeField]
-    private Transform _playerStartTransform;
+    private Transform _playerStartTransform01;
+    [SerializeField]
+    private Transform _playerStartTransform02;
     [SerializeField]
     private Transform _enemyStartTransform;
 
-    private CubeEntity _generatedCube;
+    private CubeEntity _generatedCube01;
+    private CubeEntity _generatedCube02;
 
     private void Awake()
     {
@@ -26,26 +30,41 @@ public class CubeGenerateManager : MonoBehaviour
         }
     }
 
-    public CubeEntity GenerateCube()
+    public CubeEntity GenerateCube(int power)
     {
-        _generatedCube = Instantiate(_cubePrefab, transform);
-        //_generatedCube.SetNumber(Random.Range(1, 5));
-        _generatedCube.SetNumber(1);
-        _generatedCube.SetGraphic();
-        _generatedCube.SetLayer(Strings.PLAYER_CUBE_LAYER);
-        _generatedCube.SetPosition(_playerStartTransform.position);
+        CubeEntity generatedCube = Instantiate(_cubePrefab, transform);
+        generatedCube.SetNumber(power);
+        generatedCube.SetGraphic();
+        generatedCube.SetLayer(Strings.PLAYER_CUBE_LAYER);
 
-        return _generatedCube;
+        generatedCube.ShootAction += OnShootAction;
+
+        if (_generatedCube01 == null)
+        {
+            _generatedCube01 = generatedCube;
+            _generatedCube01.SetPosition(_playerStartTransform01.position);
+
+            return _generatedCube01;
+        }
+        else
+        {
+            _generatedCube02 = generatedCube;
+            _generatedCube02.SetPosition(_playerStartTransform02.position);
+
+            return _generatedCube02;
+        }
     }
 
-    public bool HasCube()
+    private void OnShootAction(CubeEntity shootedCube)
     {
-        return _generatedCube != null;
-    }
+        shootedCube.ShootAction -= OnShootAction;
 
-    public CubeEntity GetGeneratedCube()
-    {
-        return _generatedCube;
-    }
+        if (_generatedCube01 != null && _generatedCube01 != shootedCube)
+            _generatedCube01.Destroy();
+        else if (_generatedCube02 != null && _generatedCube02 != shootedCube)
+            _generatedCube02.Destroy();
 
+        _generatedCube01 = null;
+        _generatedCube02 = null;
+    }
 }

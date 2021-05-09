@@ -41,11 +41,13 @@ public class CubeEntity : MonoBehaviour
     private Owner _owner;
     private Owner _placedAreaOwner;
     private int _power;
+    private bool _hasSelected;
 
     public string Layer { get => _layer; }
     public Owner Owner { get => _owner; }
     public Owner PlacedAreaOwner { get => _placedAreaOwner; }
     public CubeMerge CubeMerge { get => _cubeMerge; }
+    public bool HasSelected { get => _hasSelected; }
 
     public event UnityAction<CubeEntity> ShootAction;
     public event UnityAction<CubeEntity> MergingAction;
@@ -63,10 +65,22 @@ public class CubeEntity : MonoBehaviour
         _status = StatusType.Idle;
     }
 
+    private void Start()
+    {
+        RoundManager.instance.CubeSelection += OnCubeSelection;
+    }
+
+    private void OnCubeSelection(CubeEntity selectedCube)
+    {
+        _hasSelected = this == selectedCube;
+    }
+
     private void OnDestroy()
     {
         _cubeShootManager.ShootAction -= OnShooted;
         _cubeMerge.MergingAction -= OnMerging;
+
+        RoundManager.instance.CubeSelection -= OnCubeSelection;
     }
 
     private void OnShooted()
@@ -74,6 +88,8 @@ public class CubeEntity : MonoBehaviour
         _status = StatusType.Flying;
 
         ShootAction?.Invoke(this);
+
+        RoundManager.instance.CubeSelection -= OnCubeSelection;
     }
 
     private void OnMerging()
@@ -185,6 +201,8 @@ public class CubeEntity : MonoBehaviour
         _status = StatusType.Destroying;
 
         DestroyAction?.Invoke(this);
+
+        GameObject.Destroy(this.gameObject);
     }
 
     private void OnCollisionEnter(Collision other)

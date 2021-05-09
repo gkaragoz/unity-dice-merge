@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-[RequireComponent(typeof(DrawTrajectory))]
+[RequireComponent(typeof(CubeEntity), typeof(DrawTrajectory))]
 public class CubeShootManager : MonoBehaviour
 {
     [Header("Shooting Clamps")]
@@ -21,17 +21,21 @@ public class CubeShootManager : MonoBehaviour
     private bool _hasShootedOnce = false;
 
     private DrawTrajectory _drawTrajectory;
+    private CubeEntity _cubeEntity;
 
     public event UnityAction ShootAction;
 
     private void Start()
     {
+        _cubeEntity = GetComponent<CubeEntity>();
         _drawTrajectory = GetComponent<DrawTrajectory>();
     }
 
     private void Update()
     {
         if (_hasShootedOnce)
+            return;
+        if (!_cubeEntity.HasSelected)
             return;
 
         if (Input.GetMouseButtonDown(0))
