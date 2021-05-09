@@ -3,6 +3,7 @@ Library/
 Builds/
 VSCode/
 obj/
+Logs/
 *.sln
 *.vscode
 *.vs
