@@ -85,8 +85,6 @@ public class CubeShootManager : MonoBehaviour
 
             input.y = Mathf.Abs(input.y);
 
-            Debug.Log(input.y);
-
             float initialHeight = 2688f;
             input *= initialHeight / (float)Screen.height;
 
