@@ -847,7 +847,7 @@ MonoBehaviour:
   _spawnTransform01: {fileID: 819907664}
   _spawnTransform02: {fileID: 1950107074}
   _isDebug: 0
-  _difficulty: 2
+  _difficulty: 1
 --- !u!4 &954109687
 Transform:
   m_ObjectHideFlags: 0
