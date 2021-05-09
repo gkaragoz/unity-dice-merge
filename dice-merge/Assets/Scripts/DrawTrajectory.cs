@@ -44,7 +44,7 @@ public class DrawTrajectory : MonoBehaviour
                 velocity.z * stepTimePassed
                 );
 
-            MovementVector.z = velocity.z > 0 ? 1 * MovementVector.z : -1 * MovementVector.z;
+            MovementVector.z = Mathf.Sign(velocity.z) * MovementVector.z;
 
             Vector3 newPointOnLine = -MovementVector + startingPoint;
 
