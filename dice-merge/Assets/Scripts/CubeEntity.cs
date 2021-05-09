@@ -43,6 +43,7 @@ public class CubeEntity : MonoBehaviour
     private int _power;
     private bool _hasSelected;
     private bool _hasEnteredBefore;
+    private bool _isLeftOne;
 
     public string Layer { get => _layer; }
     public Owner Owner { get => _owner; }
@@ -50,6 +51,7 @@ public class CubeEntity : MonoBehaviour
     public CubeMerge CubeMerge { get => _cubeMerge; }
     public bool HasSelected { get => _hasSelected; }
     public bool HasEnteredBefore { get => _hasEnteredBefore; }
+    public bool IsLeftOne { get => _isLeftOne; }
 
     public event UnityAction<CubeEntity> ShootAction;
     public event UnityAction<CubeEntity> StartMergingAction;
@@ -193,6 +195,8 @@ public class CubeEntity : MonoBehaviour
     public void SetPosition(Vector3 position)
     {
         transform.position = position + _yOffset;
+
+        _isLeftOne = transform.position.x < 0 ? true : false;
     }
 
     public void SetLayer(string layerName)

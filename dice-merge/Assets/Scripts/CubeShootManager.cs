@@ -4,11 +4,17 @@ using UnityEngine.Events;
 [RequireComponent(typeof(CubeEntity), typeof(DrawTrajectory))]
 public class CubeShootManager : MonoBehaviour
 {
-    [Header("Shooting Clamps")]
-    [SerializeField] float _minX = -200f;
-    [SerializeField] float _maxX = 200f;
-    [SerializeField] float _minY = 300f;
-    [SerializeField] float _maxY = 640f;
+    [Header("Left Shooting Clamps")]
+    [SerializeField] float _leftMinX = -200f;
+    [SerializeField] float _leftMaxX = 200f;
+    [SerializeField] float _leftMinY = 300f;
+    [SerializeField] float _leftMaxY = 640f;
+
+    [Header("Right Shooting Clamps")]
+    [SerializeField] float _rightMinX = -200f;
+    [SerializeField] float _rightMaxX = 200f;
+    [SerializeField] float _rightMinY = 300f;
+    [SerializeField] float _rightMaxY = 640f;
 
     [Header("Other Settings")]
     [SerializeField] private float _inputMultiplier = 2f;
@@ -22,6 +28,10 @@ public class CubeShootManager : MonoBehaviour
 
     private DrawTrajectory _drawTrajectory;
     private CubeEntity _cubeEntity;
+    private float _minX;
+    private float _maxX;
+    private float _minY;
+    private float _maxY;
 
     public event UnityAction ShootAction;
 
@@ -29,6 +39,28 @@ public class CubeShootManager : MonoBehaviour
     {
         _cubeEntity = GetComponent<CubeEntity>();
         _drawTrajectory = GetComponent<DrawTrajectory>();
+
+        CalculateMinMaxClamps();
+    }
+
+    private void CalculateMinMaxClamps()
+    {
+        if (_cubeEntity.IsLeftOne)
+        {
+            _minX = _leftMinX;
+            _maxX = _leftMaxX;
+
+            _minY = _leftMinY;
+            _maxY = _leftMaxY;
+        }
+        else
+        {
+            _minX = _rightMinX;
+            _maxX = _rightMaxX;
+
+            _minY = _rightMinY;
+            _maxY = _rightMaxY;
+        }
     }
 
     private void Update()
@@ -52,6 +84,8 @@ public class CubeShootManager : MonoBehaviour
                 input.x *= -1f;
 
             input.y = Mathf.Abs(input.y);
+
+            Debug.Log(input.y);
 
             float initialHeight = 2688f;
             input *= initialHeight / (float)Screen.height;

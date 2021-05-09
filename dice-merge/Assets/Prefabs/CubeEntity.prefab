@@ -75,10 +75,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f151a253d5a117429f29d5c71794c6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _minX: -80
-  _maxX: 80
-  _minY: 300
-  _maxY: 365
+  _leftMinX: -40
+  _leftMaxX: 130
+  _leftMinY: 300
+  _leftMaxY: 375
+  _rightMinX: -130
+  _rightMaxX: 40
+  _rightMinY: 300
+  _rightMaxY: 375
   _inputMultiplier: 2
   _rb: {fileID: 2615869732193899142}
 --- !u!114 &1980019944467697706
