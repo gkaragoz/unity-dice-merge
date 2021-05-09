@@ -7,7 +7,8 @@ public class CubeMerge : MonoBehaviour
 {
     private CubeEntity _entity;
 
-    public event UnityAction MergingAction;
+    public event UnityAction StartMergingAction;
+    public event UnityAction<CubeEntity, CubeEntity> MergingActionFinished;
 
     private void Awake()
     {
@@ -21,7 +22,7 @@ public class CubeMerge : MonoBehaviour
             return;
 
         if (_entity.Owner == otherEntity.Owner && _entity.Number == otherEntity.Number)
-            MergingAction?.Invoke();
+            StartMergingAction?.Invoke();
     }
 
     public void MergeTo(CubeEntity targetEntity)
@@ -64,6 +65,8 @@ public class CubeMerge : MonoBehaviour
                             _entity.transform.DOLocalMove(finalPosition, 0.25f);
                             _entity.transform.DOLocalRotate(Vector3.zero, 0.25f);
                         }
+
+                        MergingActionFinished?.Invoke(_entity, targetEntity);
                     });
             });
     }

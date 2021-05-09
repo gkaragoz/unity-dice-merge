@@ -42,15 +42,18 @@ public class CubeEntity : MonoBehaviour
     private Owner _placedAreaOwner;
     private int _power;
     private bool _hasSelected;
+    private bool _hasEnteredBefore;
 
     public string Layer { get => _layer; }
     public Owner Owner { get => _owner; }
     public Owner PlacedAreaOwner { get => _placedAreaOwner; }
     public CubeMerge CubeMerge { get => _cubeMerge; }
     public bool HasSelected { get => _hasSelected; }
+    public bool HasEnteredBefore { get => _hasEnteredBefore; }
 
     public event UnityAction<CubeEntity> ShootAction;
-    public event UnityAction<CubeEntity> MergingAction;
+    public event UnityAction<CubeEntity> StartMergingAction;
+    public event UnityAction<CubeEntity, CubeEntity> MergingActionFinished;
     public event UnityAction<CubeEntity> EnterAreaAction;
     public event UnityAction<CubeEntity> DestroyAction;
 
@@ -60,7 +63,8 @@ public class CubeEntity : MonoBehaviour
         _cubeMerge = GetComponent<CubeMerge>();
 
         _cubeShootManager.ShootAction += OnShooted;
-        _cubeMerge.MergingAction += OnMerging;
+        _cubeMerge.StartMergingAction += OnMerging;
+        _cubeMerge.MergingActionFinished += OnMergingActionFinished;
 
         _status = StatusType.Idle;
     }
@@ -75,10 +79,19 @@ public class CubeEntity : MonoBehaviour
         _hasSelected = this == selectedCube;
     }
 
+    private void OnMergingActionFinished(CubeEntity c1, CubeEntity c2)
+    {
+        if (c1 == this || c2 == this)
+            _status = StatusType.Idle;
+
+        MergingActionFinished?.Invoke(c1, c2);
+    }
+
     private void OnDestroy()
     {
         _cubeShootManager.ShootAction -= OnShooted;
-        _cubeMerge.MergingAction -= OnMerging;
+        _cubeMerge.StartMergingAction -= OnMerging;
+        _cubeMerge.MergingActionFinished -= OnMergingActionFinished;
 
         RoundManager.instance.CubeSelection -= OnCubeSelection;
     }
@@ -96,7 +109,7 @@ public class CubeEntity : MonoBehaviour
     {
         _status = StatusType.Merging;
 
-        MergingAction?.Invoke(this);
+        StartMergingAction?.Invoke(this);
     }
 
     private void CloseAllGraphics()
@@ -196,8 +209,6 @@ public class CubeEntity : MonoBehaviour
 
     public void Destroy()
     {
-        Debug.LogWarning("Destroying");
-
         _status = StatusType.Destroying;
 
         DestroyAction?.Invoke(this);
@@ -217,6 +228,9 @@ public class CubeEntity : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (_hasEnteredBefore)
+            return;
+
         if (other.CompareTag(Strings.PLAY_AREA))
         {
             PlayArea playArea = other.GetComponent<PlayArea>();
@@ -233,6 +247,8 @@ public class CubeEntity : MonoBehaviour
 
             _placedAreaOwner = playArea.Owner;
             _status = StatusType.InArea;
+
+            _hasEnteredBefore = true;
 
             EnterAreaAction?.Invoke(this);
         }

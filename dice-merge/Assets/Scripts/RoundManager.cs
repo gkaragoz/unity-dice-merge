@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -81,6 +82,11 @@ public class RoundManager : MonoBehaviour
 
     private void OnCubeEntityEnteredArea(CubeEntity placedCube)
     {
+        if (placedCube.Owner == Owner.Player)
+            _playerCubeEntities.Add(placedCube);
+        else if (placedCube.Owner == Owner.Enemy)
+            _enemyCubeEntities.Add(placedCube);
+
         Debug.LogWarning("OnCubeEntityEnteredArea: ");
         Debug.LogWarning("Name:" + placedCube.gameObject.name);
         Debug.LogWarning("Owner:" + placedCube.Owner);
@@ -91,11 +97,6 @@ public class RoundManager : MonoBehaviour
 
     private void OnCubeEntityShooted(CubeEntity shootedCube)
     {
-        Debug.LogWarning("OnCubeEntityShooted: ");
-        Debug.LogWarning("Name:" + shootedCube.gameObject.name);
-        Debug.LogWarning("Owner:" + shootedCube.Owner);
-        Debug.LogWarning("Status:" + shootedCube.Status);
-
         DOVirtual.DelayedCall(0.3f, () =>
         {
             GenerateCube(1);
@@ -103,17 +104,40 @@ public class RoundManager : MonoBehaviour
         });
     }
 
+    private void OnMergingActionFinished(CubeEntity liveCube, CubeEntity mergedCube)
+    {
+        Debug.LogWarning("OnMergingActionFinished:");
+
+        if (mergedCube.Owner == Owner.Player)
+            _playerCubeEntities.Remove(mergedCube);
+        else if (mergedCube.Owner == Owner.Enemy)
+            _enemyCubeEntities.Remove(mergedCube);
+
+        mergedCube.Destroy();
+
+        Debug.LogWarning("Total number at area: " + GetTotalNumberInArea(liveCube.PlacedAreaOwner));
+    }
+
+    private void OnCubeDestroyed(CubeEntity destroyedCube)
+    {
+        if (destroyedCube.Owner == Owner.Player && _playerCubeEntities.Contains(destroyedCube))
+            _playerCubeEntities.Remove(destroyedCube);
+        else if (destroyedCube.Owner == Owner.Enemy && _enemyCubeEntities.Contains(destroyedCube))
+            _enemyCubeEntities.Remove(destroyedCube);
+
+        Debug.LogWarning("OnCubeDestroyed:");
+        Debug.LogWarning("Name:" + destroyedCube.gameObject.name);
+        Debug.LogWarning("Owner:" + destroyedCube.Owner);
+    }
+
     private void GenerateCube(int power)
     {
         CubeEntity generatedCube = CubeGenerateManager.instance.GenerateCube(power);
         generatedCube.ShootAction += OnCubeEntityShooted;
         generatedCube.EnterAreaAction += OnCubeEntityEnteredArea;
-        generatedCube.MergingAction += OnMergingAction;
-
-        if (generatedCube.Owner == Owner.Player)
-            _playerCubeEntities.Add(generatedCube);
-        else if (generatedCube.Owner == Owner.Enemy)
-            _enemyCubeEntities.Add(generatedCube);
+        generatedCube.StartMergingAction += OnMergingAction;
+        generatedCube.MergingActionFinished += OnMergingActionFinished;
+        generatedCube.DestroyAction += OnCubeDestroyed;
     }
 
     private void OnDestroy()
@@ -122,7 +146,9 @@ public class RoundManager : MonoBehaviour
         {
             item.ShootAction -= OnCubeEntityShooted;
             item.EnterAreaAction -= OnCubeEntityEnteredArea;
-            item.MergingAction -= OnMergingAction;
+            item.StartMergingAction -= OnMergingAction;
+            item.MergingActionFinished -= OnMergingActionFinished;
+            item.DestroyAction -= OnCubeDestroyed;
         }
     }
 }
