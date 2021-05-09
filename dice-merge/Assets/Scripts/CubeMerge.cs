@@ -17,6 +17,9 @@ public class CubeMerge : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
+        if (_entity.Status == CubeEntity.StatusType.Merging)
+            return;
+
         var otherEntity = other.gameObject.GetComponent<CubeEntity>();
         if (otherEntity == null)
             return;

@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class MergeContainer
 {
     public CubeEntity e1;
@@ -11,7 +13,11 @@ public class MergeContainer
             e2 = cubeEntity;
 
         if (IsReadyToMerge())
+        {
             e1.CubeMerge.MergeTo(e2);
+            e1 = null;
+            e2 = null;
+        }
     }
 
     public bool HasRoom()

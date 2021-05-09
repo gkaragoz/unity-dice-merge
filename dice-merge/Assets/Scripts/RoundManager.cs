@@ -56,6 +56,10 @@ public class RoundManager : MonoBehaviour
 
     private void OnMergingAction(CubeEntity mergingCube)
     {
+        Debug.LogWarning("Merging cube: ");
+        Debug.LogWarning("Name:" + mergingCube.gameObject.name);
+        Debug.LogWarning("Status:" + mergingCube.Status);
+
         if (_activeMergeContainer.HasRoom())
         {
             _activeMergeContainer.AddEntity(mergingCube);
@@ -112,12 +116,12 @@ public class RoundManager : MonoBehaviour
         else if (placedCube.Owner == Owner.Enemy)
             _enemyCubeEntities.Add(placedCube);
 
-        Debug.LogWarning("OnCubeEntityEnteredArea: ");
-        Debug.LogWarning("Name:" + placedCube.gameObject.name);
-        Debug.LogWarning("Owner:" + placedCube.Owner);
-        Debug.LogWarning("Placed Owner:" + placedCube.PlacedAreaOwner);
-        Debug.LogWarning("Status:" + placedCube.Status);
-        Debug.LogWarning("Total number at area: " + GetTotalNumberInArea(placedCube.PlacedAreaOwner));
+        //Debug.LogWarning("OnCubeEntityEnteredArea: ");
+        //Debug.LogWarning("Name:" + placedCube.gameObject.name);
+        //Debug.LogWarning("Owner:" + placedCube.Owner);
+        //Debug.LogWarning("Placed Owner:" + placedCube.PlacedAreaOwner);
+        //Debug.LogWarning("Status:" + placedCube.Status);
+        //Debug.LogWarning("Total number at area: " + GetTotalNumberInArea(placedCube.PlacedAreaOwner));
 
         int maxNumberInArea = GetMaxNumberInArea(placedCube.PlacedAreaOwner);
         int[] randomPowers = GenerateRandomPowers(maxNumberInArea);
@@ -154,9 +158,9 @@ public class RoundManager : MonoBehaviour
         else if (destroyedCube.Owner == Owner.Enemy && _enemyCubeEntities.Contains(destroyedCube))
             _enemyCubeEntities.Remove(destroyedCube);
 
-        Debug.LogWarning("OnCubeDestroyed:");
-        Debug.LogWarning("Name:" + destroyedCube.gameObject.name);
-        Debug.LogWarning("Owner:" + destroyedCube.Owner);
+        //Debug.LogWarning("OnCubeDestroyed:");
+        //Debug.LogWarning("Name:" + destroyedCube.gameObject.name);
+        //Debug.LogWarning("Owner:" + destroyedCube.Owner);
     }
 
     private void GenerateCube(int power)

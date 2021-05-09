@@ -63,7 +63,7 @@ public class CubeEntity : MonoBehaviour
         _cubeMerge = GetComponent<CubeMerge>();
 
         _cubeShootManager.ShootAction += OnShooted;
-        _cubeMerge.StartMergingAction += OnMerging;
+        _cubeMerge.StartMergingAction += OnStartMergingAction;
         _cubeMerge.MergingActionFinished += OnMergingActionFinished;
 
         _status = StatusType.Idle;
@@ -90,7 +90,7 @@ public class CubeEntity : MonoBehaviour
     private void OnDestroy()
     {
         _cubeShootManager.ShootAction -= OnShooted;
-        _cubeMerge.StartMergingAction -= OnMerging;
+        _cubeMerge.StartMergingAction -= OnStartMergingAction;
         _cubeMerge.MergingActionFinished -= OnMergingActionFinished;
 
         RoundManager.instance.CubeSelection -= OnCubeSelection;
@@ -105,7 +105,7 @@ public class CubeEntity : MonoBehaviour
         RoundManager.instance.CubeSelection -= OnCubeSelection;
     }
 
-    private void OnMerging()
+    private void OnStartMergingAction()
     {
         _status = StatusType.Merging;
 
