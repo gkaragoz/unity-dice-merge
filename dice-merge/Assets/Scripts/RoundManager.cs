@@ -36,7 +36,7 @@ public class RoundManager : MonoBehaviour
     private void Start()
     {
         GenerateCube(1);
-        GenerateCube(2);
+        GenerateCube(1);
     }
 
     private void Update()
@@ -80,6 +80,31 @@ public class RoundManager : MonoBehaviour
         return totalAmount;
     }
 
+    private int GetMaxNumberInArea(Owner areaOwner)
+    {
+        if (areaOwner == Owner.Player)
+            return _enemyCubeEntities.Max(a => a.Number);
+        else if (areaOwner == Owner.Enemy)
+            return _playerCubeEntities.Max(a => a.Number);
+
+        return -1;
+    }
+
+    private int[] GenerateRandomPowers(int maxNumberInArea)
+    {
+        if (maxNumberInArea == 2)
+            return new int[] { 1, 1 };
+
+        int maxPowerInRandom = (int)Mathf.Sqrt(maxNumberInArea) + 1;
+        int firstPower = UnityEngine.Random.Range(1, maxPowerInRandom);
+        int secondPower = UnityEngine.Random.Range(1, maxPowerInRandom);
+
+        while (secondPower == firstPower)
+            secondPower = UnityEngine.Random.Range(1, maxPowerInRandom);
+
+        return new int[] { firstPower, secondPower };
+    }
+
     private void OnCubeEntityEnteredArea(CubeEntity placedCube)
     {
         if (placedCube.Owner == Owner.Player)
@@ -93,15 +118,19 @@ public class RoundManager : MonoBehaviour
         Debug.LogWarning("Placed Owner:" + placedCube.PlacedAreaOwner);
         Debug.LogWarning("Status:" + placedCube.Status);
         Debug.LogWarning("Total number at area: " + GetTotalNumberInArea(placedCube.PlacedAreaOwner));
+
+        int maxNumberInArea = GetMaxNumberInArea(placedCube.PlacedAreaOwner);
+        int[] randomPowers = GenerateRandomPowers(maxNumberInArea);
+
+        DOVirtual.DelayedCall(0.3f, () =>
+        {
+            GenerateCube(randomPowers[0]);
+            GenerateCube(randomPowers[1]);
+        });
     }
 
     private void OnCubeEntityShooted(CubeEntity shootedCube)
     {
-        DOVirtual.DelayedCall(0.3f, () =>
-        {
-            GenerateCube(1);
-            GenerateCube(2);
-        });
     }
 
     private void OnMergingActionFinished(CubeEntity liveCube, CubeEntity mergedCube)
