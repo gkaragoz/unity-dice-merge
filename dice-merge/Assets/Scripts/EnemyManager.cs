@@ -16,6 +16,8 @@ public class EnemyManager : MonoBehaviour
 
     [Header("Shoot Settings")]
     [SerializeField]
+    private bool _isDebug = false;
+    [SerializeField]
     private Difficulty _difficulty = Difficulty.Normal;
 
     private List<CubeEntity> _enemyCubeEntities = new List<CubeEntity>();
@@ -84,15 +86,17 @@ public class EnemyManager : MonoBehaviour
     private void Shoot()
     {
         CubeEntity selectedCube = null;
-
-        //int selectedRandomCube = Random.Range(0, 2);
         int selectedRandomCube = 0;
+
+        if (!_isDebug)
+            selectedRandomCube = Random.Range(0, 2);
+
         if (selectedRandomCube == 0)
             selectedCube = _generatedCube01;
         else if (selectedRandomCube == 1)
             selectedCube = _generatedCube02;
 
-        selectedCube.ShootManager.ShootByManual(true, true);
+        selectedCube.ShootManager.ShootByManual(true, _isDebug);
 
         _generatedCube01 = null;
         _generatedCube02 = null;
