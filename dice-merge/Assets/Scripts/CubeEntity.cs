@@ -57,6 +57,7 @@ public class CubeEntity : MonoBehaviour
     public event UnityAction<CubeEntity, CubeEntity> MergingActionFinished;
     public event UnityAction<CubeEntity> EnterAreaAction;
     public event UnityAction<CubeEntity> DestroyAction;
+    public event UnityAction<CubeEntity, CubeEntity> CollideWithEnemyCubeAction;
 
     private void Awake()
     {
@@ -228,7 +229,10 @@ public class CubeEntity : MonoBehaviour
             return;
 
         if (Owner != otherEntity.Owner)
+        {
+            CollideWithEnemyCubeAction?.Invoke(this, otherEntity);
             Destroy();
+        }
     }
 
     private void OnTriggerEnter(Collider other)

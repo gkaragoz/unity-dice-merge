@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -85,14 +86,7 @@ public class PlayerManager : MonoBehaviour
         //Debug.LogWarning("Status:" + placedCube.Status);
         //Debug.LogWarning("Total number at area: " + GetTotalNumberInArea(placedCube.PlacedAreaOwner));
 
-        int maxNumberInArea = _utils.GetMaxNumberInArea(_playerCubeEntities);
-        int[] randomPowers = _utils.GenerateRandomPowers(maxNumberInArea);
-
-        DOVirtual.DelayedCall(0.3f, () =>
-        {
-            GenerateCube(randomPowers[0], _spawnTransform01.position);
-            GenerateCube(randomPowers[1], _spawnTransform02.position);
-        });
+        GenerateCubes();
     }
 
     private void OnCubeEntityShooted(CubeEntity shootedCube)
@@ -121,6 +115,23 @@ public class PlayerManager : MonoBehaviour
         //Debug.LogWarning("Owner:" + destroyedCube.Owner);
     }
 
+    private void OnCollideWithEnemyCubeAction(CubeEntity myCube, CubeEntity enemyCube)
+    {
+        GenerateCubes();
+    }
+
+    private void GenerateCubes()
+    {
+        int maxNumberInArea = _utils.GetMaxNumberInArea(_playerCubeEntities);
+        int[] randomPowers = _utils.GenerateRandomPowers(maxNumberInArea);
+
+        DOVirtual.DelayedCall(0.3f, () =>
+        {
+            GenerateCube(randomPowers[0], _spawnTransform01.position);
+            GenerateCube(randomPowers[1], _spawnTransform02.position);
+        });
+    }
+
     private void GenerateCube(int power, Vector3 spawnPosition)
     {
         CubeEntity generatedCube = _cubeGenerateManager.GenerateCube(_cubePrefab, power, Owner.Player, spawnPosition);
@@ -129,6 +140,7 @@ public class PlayerManager : MonoBehaviour
         generatedCube.StartMergingAction += OnMergingAction;
         generatedCube.MergingActionFinished += OnMergingActionFinished;
         generatedCube.DestroyAction += OnCubeDestroyed;
+        generatedCube.CollideWithEnemyCubeAction += OnCollideWithEnemyCubeAction;
     }
 
     private void OnDestroy()
@@ -140,6 +152,7 @@ public class PlayerManager : MonoBehaviour
             item.StartMergingAction -= OnMergingAction;
             item.MergingActionFinished -= OnMergingActionFinished;
             item.DestroyAction -= OnCubeDestroyed;
+            item.CollideWithEnemyCubeAction -= OnCollideWithEnemyCubeAction;
         }
     }
 }

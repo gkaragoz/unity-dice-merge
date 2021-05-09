@@ -148,6 +148,22 @@ public class EnemyManager : MonoBehaviour
         if (destroyedCube.Owner == Owner.Enemy && _enemyCubeEntities.Contains(destroyedCube))
             _enemyCubeEntities.Remove(destroyedCube);
     }
+    private void OnCollideWithEnemyCubeAction(CubeEntity myCube, CubeEntity enemyCube)
+    {
+        GenerateCubes();
+    }
+
+    private void GenerateCubes()
+    {
+        int maxNumberInArea = _utils.GetMaxNumberInArea(_enemyCubeEntities);
+        int[] randomPowers = _utils.GenerateRandomPowers(maxNumberInArea);
+
+        DOVirtual.DelayedCall(0.3f, () =>
+        {
+            GenerateCube(randomPowers[0], _spawnTransform01.position);
+            GenerateCube(randomPowers[1], _spawnTransform02.position);
+        });
+    }
 
     private void GenerateCube(int power, Vector3 spawnPosition)
     {
@@ -157,6 +173,7 @@ public class EnemyManager : MonoBehaviour
         generatedCube.StartMergingAction += OnMergingAction;
         generatedCube.MergingActionFinished += OnMergingActionFinished;
         generatedCube.DestroyAction += OnCubeDestroyed;
+        generatedCube.CollideWithEnemyCubeAction += OnCollideWithEnemyCubeAction;
 
         if (_generatedCube01 == null)
             _generatedCube01 = generatedCube;
@@ -173,6 +190,7 @@ public class EnemyManager : MonoBehaviour
             item.StartMergingAction -= OnMergingAction;
             item.MergingActionFinished -= OnMergingActionFinished;
             item.DestroyAction -= OnCubeDestroyed;
+            item.CollideWithEnemyCubeAction -= OnCollideWithEnemyCubeAction;
         }
     }
 }
